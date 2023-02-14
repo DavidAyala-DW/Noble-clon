@@ -1,10 +1,11 @@
 import SanityImage from "./sanity-image";
+import SimpleBlockContent from '@/components/simple-block-content'
 import Image from "next/image";
 import { useCallback, useEffect, useState } from "react";
 
 export default function Event({event}) {
 
-  const {title, image, description, date, link} = event;
+  const {title, image, alt_text, description, description2, date, link} = event;
   const [showDate, setShowDate] = useState(false);
 
   const handleFormatDate = useCallback((date) => {
@@ -30,13 +31,18 @@ export default function Event({event}) {
 
   return (
     
-    <div className="flex flex-col lg:grid lg:grid-cols-[35.93%_calc(64.07%-65px)] 3xl:grid-cols-[46.32%_calc(53.68%-3.3854vw)] lg:gap-x-[65px] vw:gap-x-[3.3854vw] w-full">
+    <div className="flex flex-col space-y-4 md:space-y-0 lg:grid lg:grid-cols-[40.07%_55.48%] lg:gap-x-[53.5px] 3xl:gap-x-[2.78vw] w-full">
 
       <div className="w-full">
-        <div className="w-full aspect-h-1 aspect-w-[1.423] md:aspect-w-[1.80] lg:aspect-w-[1.248] 3xl:aspect-w-[2.1891]">
+        <div className="w-full aspect-h-1 aspect-w-[1.435] lg:aspect-w-[1.25]">
           <div className="w-full">
             <div className="w-full h-full relative">
-              <SanityImage className="object-cover" src={image} alt="Event image" layout="fill"/>
+              <SanityImage
+                className="object-cover"
+                src={image}
+                alt={alt_text ?? "Image"}
+                layout="fill"
+              />
             </div>
           </div>
         </div>
@@ -44,34 +50,48 @@ export default function Event({event}) {
 
       <div className="flex flex-col lg:justify-between h-full w-full">
 
-        <div className="flex flex-col w-full mb-12 md:mb-20 lg:mb-0">
+        <div className="flex flex-col w-full mb-11 vw:mb-[2.291vw]">
 
-          <h3 className="font-extralight text-[32px] vw:text-[1.6666vw] leading-[37px] vw:leading-[1.156] tracking-[.05em] mb-4 vw:mb-[.8333vw] lg:max-w-[616px] vw:max-w-[32.08vw]">
+          <h3 className="text-[24px] lg:text-[32px] vw:text-[1.6666vw] leading-[33px] lg:leading-11 vw:leading-[1.375] font-light mb-2 vw:mb-[.41666vw]">
             {title}
           </h3>
 
-          <p className="font-light text-lg vw:text-[.9375vw] leading-[21px] vw:leading-[1.1666] opacity-80 mb-4 vw:mb-[.8333vw]">
+          <p className="font-normal text-base vw:text-[.83333vw] leading-[1.5] opacity-[.85] mb-5 vw:mb-[1.0416vw]">
             {showDate && handleFormatDate(date)}
           </p>
 
-          <div className="text-lg vw:text-[.9375vw] leading-[21px] vw:leading-[1.1666] font-light opacity-80 md:max-w-[470px] vw:max-w-[24.479vw]">
-            {description}
+          <div className="font-normal text-base vw:text-[.8333vw] leading-[1.5] opacity-[.85] lg:max-w-[46.3vw]">
+
+            {
+              (description && !description2) && (
+                <p>
+                {description}
+                </p>              
+              )
+            }
+
+            {
+              (description2) && (
+                <SimpleBlockContent blocks={description2} />
+              )
+            }
+
           </div>
 
         </div>
 
         <a href={link.url} className="max-w-max flex items-center space-x-2 vw:space-x-[.41666vw] opacity-80">
 
-          <p className="font-light hover_state_link md:font-normal text-xs vw:text-[.625vw] leading-[1.1] tracking-[.05em] uppercase">
+          <p className="font-light text-lg vw:text-[.9375vw] leading-[25px] vw:leading-[1.3889] tracking-[.05em] uppercase underline">
             {link.title}
           </p>
 
-          <div className="w-[13px] vw:w-[.6770vw] h-[7px] vw:h-[.3645vw]">
+          <div className="w-[25px] vw:w-[1.302vw] h-[23px] vw:h-[1.197vw]">
             <Image
-              src="/images/arrowRight.svg"
+              src="/images/arrowRightB.svg"
               alt="Arrow right"
-              width={13}
-              height={7}
+              width={25}
+              height={23}
               layout="responsive"
             />
           </div>

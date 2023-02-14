@@ -1,6 +1,6 @@
 export const config = {
   dataset: 'production',
-  projectId: 'kq13uftm',
+  projectId: 'gc88i9im',
   apiVersion: '2022-06-29', // Learn more: https://www.sanity.io/docs/api-versioning
   useCdn: false,
   /**

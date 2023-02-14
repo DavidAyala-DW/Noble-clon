@@ -1,3 +1,4 @@
+import Link from "next/link"
 import Header from './header'
 import Head from "next/head"
 import Footer from './footer'
@@ -16,11 +17,16 @@ function Layout(props) {
       instagramHandle,
       privacyPolicyHandle,
       cookiesPreferencesHandle,
+      spotifyHandle,
+      soundCloudHandle,
       reservationsButton,
+      footer_noble_link,
       newsletter_text
     },
-    menus
-  } = props
+    menus,
+    locations
+  } = props;
+
 
   const globalMenus = [
     mainNav,
@@ -34,13 +40,25 @@ function Layout(props) {
     reservationsButton,
   ]
 
-  setGlobalURL.forEach((menuItem,i) => {
+  setGlobalURL.forEach(menuItem => {
+    if (!menuItem) return;    
 
-    const {slug = null} = menus.find(item => item._id == menuItem.link._ref);
+    const {slug} = menus.find(item => item._id == menuItem?.link?._ref) ?? false;
     
     if(!slug) {
+
+      if(!menuItem?.link){
+        menuItem.link = {};
+      }
+
       menuItem.link.url = "/";
+
+      if (menuItem.externalLink) {
+        menuItem.link.url = menuItem.externalLink;
+      }
+
       return;
+
     }
 
     menuItem.link.url = slug.current != "/" ? `/${slug.current}`: "/"; 
@@ -52,31 +70,46 @@ function Layout(props) {
   })
   
   globalMenus.forEach(menuItem => {
+
     if(!menuItem) return;
-
+    
     menuItem.forEach(menu => {
-      
-      if(!menu) return;
 
-      if(menu?.externalLink){
-        menu.link = {url: menu.externalLink};
-        return;
+      let isLocation = false;
+
+      if(!menu) return;
+      
+      let {slug} = menus.find(item => item._id == menu?.link?._ref) ?? false;
+
+      if(!slug){
+        const {slug:slugLocation} = locations.find(item => item._id == menu?.link?._ref) ?? false;
+        slug = slugLocation
+        slug ? isLocation = true : null;
       }
 
-      const {slug} = menus.find(item => item._id == menu?.link?._ref) ?? {slug : false};
-      
       if(!slug) {
 
-        if(menu.link){
-          menu.link.url = "/";
-        }else{
-          menu.link = {url: "/"};
+        if(!menu?.link){
+          menu.link = {};
+        }
+
+        menu.link.url = "/";
+
+        if (menu.externalLink) {
+          menu.link.url = menu.externalLink;
         }
         
         return;
+
       }
 
-      menu.link.url = slug.current != "/" ? `/${slug.current}`: "/"; 
+      if(!isLocation){
+        menu.link.url = slug.current != "/" ? `/${slug.current}`: "/"; 
+      }else{
+        menu.link.url = slug.current != "/" ? `/locations/${slug.current}`: "/"; 
+      }
+      
+
       if (menu.externalLink) {
         menu.link.url = menu.externalLink;
       }
@@ -104,9 +137,12 @@ function Layout(props) {
           secondHeaderNav,
           facebookHandle,
           instagramHandle,
+          spotifyHandle,
+          soundCloudHandle,
           reservationsButton,
           menus,
-          stickyHeader
+          stickyHeader,
+          locations
         }}/>
 
         <div className="w-full min-h-screen flex flex-col relative">
@@ -116,12 +152,29 @@ function Layout(props) {
         <Footer {...{
           facebookHandle,
           instagramHandle,
+          spotifyHandle,
+          soundCloudHandle,
           menus,
           privacyPolicyHandle,
           cookiesPreferencesHandle,
           footerNav,
+          footer_noble_link,
           newsletter_text
         }}/>
+
+        {(reservationsButton && (
+
+          <Link passHref href={reservationsButton?.link?.url}>
+            <a                      
+              className="fixed bottom-0 inset-x-0 w-full md:hidden z-[5] bg-body border-t border-[#D1C8BA] py-[13px]"
+            >
+              <p className="text-center text-primary opacity-80  uppercase tracking-[0.05em] text-base font-light leading-[22px] w-full">
+                {reservationsButton?.title}
+              </p>              
+            </a>
+          </Link>
+
+        ))}
 
       </div>
     </>

@@ -6,7 +6,11 @@ export function newsDetailsQuery(slug){
 
 }
 
-export const pageContentQuery = `
-  content[] {
-    ...
-  }`
+export function locationQuery(slug){
+  
+  return `*[_type == "locations" && slug.current == "${slug}" ][0]{
+    title,
+    menus
+  }`;
+
+}

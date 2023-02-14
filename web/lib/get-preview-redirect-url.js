@@ -1,4 +1,4 @@
-const remoteUrl = `https://noble33.netlify.app/`
+const remoteUrl = `https://casa-madera.netlify.app/`
 const localUrl = `http://localhost:3000`
 
 export function getPreviewRedirectUrl(req) {

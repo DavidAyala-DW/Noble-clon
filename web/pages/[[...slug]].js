@@ -1,7 +1,8 @@
+import imageUrlBuilder from '@sanity/image-url'
 import groq from 'groq'
 import { NextSeo } from 'next-seo'
-import dynamic from 'next/dynamic'
 import client from '@/lib/sanity-client'
+import dynamic from 'next/dynamic'
 import Layout from '@/components/layout'
 import RenderSections from '@/components/render-sections'
 import { getSlugVariations, slugParamToPath } from '@/lib/urls'
@@ -15,8 +16,10 @@ const ExitPreviewButton = dynamic(() =>
 
 export default function Page(props) {
 
-  const { preview, data, siteSettings, menus } = props;
+  const { preview, data, siteSettings, menus, locations } = props;
   const stickyHeader = false;
+  const {page: {page : {title, seo_title, description, openGraphImage}}} = data;
+  const builder = imageUrlBuilder(getClient(preview))
 
   const { data: previewData } = usePreviewSubscription(data?.query, {
     params: data?.queryParams ?? {},
@@ -27,13 +30,31 @@ export default function Page(props) {
     enabled: preview,
   })
 
-  const page = filterDataToSingleItem(previewData?.page, preview);
-  const title = page?.title ?? "";
+  let seo_title_value = seo_title ?? title;
+  seo_title_value = `${seo_title_value} | Casa Madera`
+
+  const page = filterDataToSingleItem(previewData?.page, preview)
 
   return (    
-    <Layout menus={menus} siteSettings={siteSettings} stickyHeader={stickyHeader}>
+    <Layout menus={menus} locations={locations} siteSettings={siteSettings} stickyHeader={stickyHeader}>
       <NextSeo
-        title={title}
+        title={seo_title_value}
+        description={description ?? ""}
+
+        {...(openGraphImage ? {openGraph: 
+          {
+            images: [
+              {
+                url: builder.image(openGraphImage).width(1200).height(630).url(),
+                width: 1200,
+                height: 630,
+                alt: title,
+              },
+            ]
+          }
+
+        } : {})}
+        
       />
       {page?.content && <RenderSections sections={page?.content} />}
       {preview && <ExitPreviewButton />}
@@ -41,11 +62,7 @@ export default function Page(props) {
   )
 }
 
-/**
- * Helper function to return the correct version of the document
- * If we're in "preview mode" and have multiple documents, return the draft
- */
- function filterDataToSingleItem(data, preview) {
+function filterDataToSingleItem(data, preview) {
   if (!Array.isArray(data)) {
     return data
   }
@@ -61,39 +78,77 @@ export default function Page(props) {
   return data[0]
 }
 
-async function fulfillSectionQueries(page) {
+async function fulfillSectionQueries(page, internalLinks) {
 
   if (!page?.page?.content) {
     return page
   }
 
   const sectionsWithQueryData = await Promise.all(
-
     page.page.content.map(async (section) => {
-      
-      const news_sections = ["news", "news_slider"]; //Key where we set the reference news
-      const news_section = news_sections.find( section_name => section[section_name] );
-      if(news_section){
-        if(Array.isArray(section[news_section])){
 
-          await Promise.all(section[news_section].map(async (news) => {
-
-            const queryData = await client.fetch(groq`*[_type == "newsPT" && _id == "${news._ref}" ][0]{
-              title,description,slug,image
-            }`);
-            
-            news.query = queryData;
-
-          }))
-        
-        }else{
-          const queryData = await client.fetch(groq`*[_type == "newsPT" && _id == "${section[section_name]._ref}" ][0]{
-            title,description,slug,image
-          }`)
-          section.news.query = queryData;
+      if(section?.links){
+        const {_type} = section?.links ?? null;
+        if(_type == "links"){
+          const {link} = section?.links ?? null;
+          const selectedLink = internalLinks.find(internalLink => internalLink?._id == link?._ref);
+          if(selectedLink){
+            section.links.internalLink = selectedLink?.slug?.current;
+          }          
         }        
       }
 
+      if(section?.locations){
+        if(Array.isArray(section.locations)){
+
+          await Promise.all(section.locations.map(async (location) => {
+            const queryData = await client.fetch(groq`*[_type == "locations" && _id == "${location._ref}" ][0]{...}`)
+            const {title, image, alt_text = "", slug, menus = null} = queryData;
+            location.title = title;
+            location.image = image;
+            location.alt_text = alt_text;
+            location.menus = menus;
+            location.slug = slug;
+            location.query = queryData;
+          }
+
+          ))
+
+        }else{
+          const queryData = await client.fetch(groq`*[_type == "locations" && _id == "${section.locations._ref}" ][0]{...}`)
+          section.locations.query = queryData;
+        }
+      }
+
+      if(section._type == "privateEventsList" && section.events){
+
+        if(Array.isArray(section.events)){
+          
+          await Promise.all(section.events.map(async (event) => {
+
+            const queryData = await client.fetch(groq`*[_type == "eventsCasaMadera" && _id == "${event._ref}" ][0]{...}`)
+            const {title, image, alt_text = "", slug, book_link} = queryData;
+            event.title = title;
+            event.image = image;
+            event.alt_text = alt_text;
+            event.book_link = book_link;
+            event.slug = slug;
+
+          }))
+
+        }
+
+      }
+
+      if(section._type === 'imageWithText' && section?.show_locations){
+        section.locations = page?.locations;
+      }
+
+      if(section._type === 'textContentCenter' && section?.show_locations){
+        section.locations = page?.locations;
+      }
+
+       //Detectar _type-> el nombre de un documento y para cada documento se tendra un objeto desde el server con query groq, revisar que solo se ejecute una vez
       if (section.query) {
         const queryData = await client.fetch(groq`${section.query}`)
 
@@ -110,7 +165,7 @@ async function fulfillSectionQueries(page) {
 
 export async function getStaticPaths() {
 
-  const routes = await client.fetch(groq`*[_type == 'route']{slug}`);
+  const routes = await client.fetch(groq`*[_type == 'routesCasaMadera']{slug}`);
   const paths = routes.map(({ slug }) => ({
     params: {
       slug: slug.current === '/' ? false : [slug.current],
@@ -125,21 +180,26 @@ export async function getStaticPaths() {
 }
 
 async function getMenus(){
-  const request = await getClient().fetch(groq`*[_type == "route"] {_id, slug {current}} `);
+  const request = await client.fetch(groq`*[_type == "routesCasaMadera"] {_id, slug {current}} `);
+  return request;
+}
+
+async function getLocations(){
+  const request = await client.fetch(groq`*[_type == "locations"] | order(_createdAt  asc) {_id, title, comming_soon, menus, slug {current}} `);
   return request;
 }
 
 async function getSiteConfig(){
-  const siteSettings = await getClient().fetch(groq`*[_type == "siteSettings" && site == "noble33" ][0]{...}`);
+  const siteSettings = await client.fetch(groq`*[_type == "siteSettings" && site == "casaMadera"][0]{...}`);
   return siteSettings;
 }
 
 async function getPageSections(slug){
 
-  const request = await getClient().fetch(
+  const request = await client.fetch(
     groq`
-      *[_type == "route" && slug.current in $possibleSlugs][0]{
-        page -> {...}
+      *[_type == "routesCasaMadera" && slug.current in $possibleSlugs][0]{
+        {... page -> {...}} 
       }
     `,
     { possibleSlugs: getSlugVariations(slug) }
@@ -150,26 +210,29 @@ async function getPageSections(slug){
 
 export const getStaticProps = async ({ params, preview = false }) => {
 
-  const slug = slugParamToPath(params?.slug)
+  const slug = slugParamToPath(params?.slug);
   const client = getClient(preview)
   const query =  groq`
-    *[_type == "route" && slug.current in $possibleSlugs][0]{
+    *[_type == "routesCasaMadera" && slug.current in $possibleSlugs][0]{
       page -> {...}
     }
-  `
+  ` 
   const queryParams = { possibleSlugs: getSlugVariations(slug) }
   let data = await client.fetch(query, queryParams)
-  let [siteSettings, menus] = await Promise.all([getSiteConfig(), getMenus()])
+  let [siteSettings, menus, locations] = await Promise.all([getSiteConfig(), getMenus(), getLocations()])
   let page = filterDataToSingleItem(data, preview)
-  page = await fulfillSectionQueries(page)
   page.slug = slug;
+  page.locations = locations;
+  page = await fulfillSectionQueries(data,menus)
   page.query = query;
   page.queryParams = queryParams;
-  
+
   return {
     props:{
       data: {page, query, queryParams},
       siteSettings,
+      menus,
+      locations,
       menus,
       preview
     }

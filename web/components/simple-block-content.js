@@ -4,13 +4,12 @@ import { PortableText } from '@portabletext/react'
 import EmbedHTML from './embed-html'
 import Figure from './figure'
 import ToggleText from './toggle-text'
+import CenterText from "./center-text"
 
 function SimpleBlockContent(props) {
   
   const { blocks } = props
-
   if (!blocks) {
-    console.error('Missing blocks')
     return null
   }
 
@@ -25,6 +24,10 @@ function SimpleBlockContent(props) {
             figure: Figure,
             toggleText: ToggleText,
           },
+          marks: {
+            center: CenterText,
+          }
+
         }}
       />
     </div>

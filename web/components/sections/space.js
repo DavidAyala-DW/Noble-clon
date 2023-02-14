@@ -23,9 +23,9 @@ const Space = (props) => {
           }
         }
 
-        @media(min-width: 1921px){
+        @media(min-width: 1920px){
           .space{
-            height: ${(heightDesktop/1921)*100}vw;
+            height: ${(heightDesktop/1920)*100}vw;
           }
         }
 

@@ -4,7 +4,8 @@ import CookieConsent from "react-cookie-consent";
 import GTM from "@/components/GTM";
 import Cookies from 'js-cookie'
 import { useEffect } from 'react';
-
+import Head from 'next/head';
+ 
 function MyApp({ Component, pageProps }) {
 
   useEffect(() => {
@@ -23,6 +24,9 @@ function MyApp({ Component, pageProps }) {
   return (
     <>
       <GTM/>
+      <Head>
+        <link rel="shortcut icon" href="/images/Casa Madera Favicon.png" />
+      </Head>
       <Component {...pageProps} />
       <CookieConsent
         containerClasses="cookie"
@@ -45,20 +49,21 @@ function MyApp({ Component, pageProps }) {
         }}
       >
 
-        We use cookies to ensure that we give you the best experience on our website.
-        visit
+      We use cookies to ensure that we give you the best experience on our website.
+
+      See
         
         <Link href="/privacy-policy" passHref>
-          <a className="px-2 hover_state_link underline pointer ">
+          <a className="px-2 underline pointer ">
             Privacy policy
           </a>            
         </Link>
         
         and
 
-        <Link href="/cookies-preference" passHref>
-          <a className="px-2 hover_state_link underline pointer ">
-            Cookies preferences
+        <Link href="/website-terms" passHref>
+          <a className="px-2 underline pointer ">
+            Website Terms
           </a>          
         </Link>
 

@@ -3,27 +3,27 @@
 @tailwind utilities;
 
 @import "./fonts";
+
 body, *{
-  font-family: "Sofia Pro";
-  color: white;
+  font-family: "Libre Baskerville";
+  color: #4A3419;
 }
 
-.gallery .swiper-wrapper{
-  margin-left: -16%!important;
-  @media(min-width: 744px){
-    margin-left: -2.688%!important;
+h1,h2,h3,h4,a,input{
+  p{
+    font-family: "Avenir";  
   }
-  @media(min-width: 1024px){
-    margin-left: 10.763%!important;
-  }
-  @media(min-width: 1920px){
-    margin-left: 0!important;
-  }
+  font-family: "Avenir";
 }
 
 .portableText ul{
   list-style: disc;
   padding-left: 22px;
+}
+
+.portableText a{
+  font-family: inherit!important; 
+  text-decoration: underline;
 }
 
 @media(min-width: 1440px){
@@ -32,16 +32,12 @@ body, *{
   }
 }
 
-.member-gradient{
-  background: linear-gradient(180deg, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
-}
-
 .swiper-button-disabled{
   opacity: 0.5!important;
 }
 
 .cookie{
-
+  font-family: "Avenir"!important;
   position: fixed;
   z-index: 99999;
   background-color: #0C0A06;
@@ -54,99 +50,33 @@ body, *{
     align-items: center;
     flex-direction: row;
     justify-content: space-between;
-    @apply space-y-0;
+    @apply space-y-0 font-avenir;
   }
 
   padding: 20px;
-  padding-bottom: 32px;
+  padding-bottom: 20px;
 
-  @apply px-4 md:px-[3.35%];
+  @apply px-4 md:px-[3.35%] font-avenir;
   .cookieContent{
-    @apply text-base text-[#DEDEDE] font-light;
+    @apply text-base text-[#F3EDE2] font-light font-avenir;
   }
   .cookieContent p, .cookieContent a{
-    @apply text-base text-[#DEDEDE] font-light;
+    @apply text-base text-[#F3EDE2] font-light font-avenir;
   }
   .CookitButtonsWrapper{
-    @apply flex space-x-reverse space-x-5 items-center text-[#DEDEDE];
+    @apply flex space-x-reverse space-x-5 items-center text-[#F3EDE2] font-avenir;
   }
   .cookieButton{
-    @apply text-base order-1 leading-[18px] text-[#DEDEDE] text-center font-light cursor-pointer;
+    @apply text-base order-1 leading-[18px] text-[#F3EDE2] text-center font-light cursor-pointer font-avenir;
   }
   .cookieDeclineButton{
-    @apply text-base order-2 leading-[18px] text-[#DEDEDE] text-center font-light cursor-pointer;
+    @apply text-base order-2 leading-[18px] text-[#F3EDE2] text-center font-light cursor-pointer font-avenir;
   }
 }
 
-.swiper-pagination-homepage-desktop, .swiper-pagination-homepage-mobile{
-
-  .swiper-pagination-bullet{
-    background-color: #EDEDED!important;
-    cursor: pointer!important;
-  }
-
-  .swiper-pagination-bullet-active{
-    background-color: white!important;
-  }
-
+.gallery .swiper-wrapper{
+  margin-left: -16%!important;
 }
-
-.swiper-pagination-homepage-desktop{
-  .swiper-pagination-bullet{
-    width: 10px!important;
-    height: 10px!important;
-    margin-right: 8px!important;
-  }
-}
-
-.swiper-pagination-homepage-mobile{
-  .swiper-pagination-bullet{
-    width: 5px!important;
-    height: 5px!important;
-    margin-right: 4px!important;
-  }
-}
-
-.hover_state_link{
-  transition: all .300s ease-in-out;
-  max-width: max-content;
-  position: relative;
-  &::after{
-    content: "";
-    position: absolute;    
-    bottom: -4px;
-    height: 1px;
-    width: 0px;
-    left: 0;
-    background-color: #E5E5E5;
-    transition: all .300s linear;
-  }
-  &:hover{
-    opacity: 1;
-    &::after{
-      width: 100%;
-    }
-  }  
-}
-
-// .scrollmagic-pin-spacer:first-of-type{
-//   padding-bottom: 0!important;
-// }
-
-.scene-wrapper{
-  width: 100%;
-  height: 100vh;
-  overflow: hidden;
-  background-color: #0C0A06;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-}
-
-  // .scrollmagic-pin-spacer{
-  //   padding-bottom: 0 !important;
-  // }
-
 
 .richtext-page{
 
@@ -164,18 +94,20 @@ body, *{
 
 }
 
-.limit-2-lines{
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+.checkbox-newsletter{
+  input:checked + label{
+    @apply bg-primary;
+  }
 }
 
-.limit-3-lines{
-  overflow: hidden;
-  text-overflow: ellipsis;
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 3;
+.overlay-hero{
+  background: radial-gradient(50% 50% at 50% 50%, rgba(0, 0, 0, 0) 0%, rgba(0, 0, 0, 0.4) 100%);
+}
+
+.filter-nav-icons{
+  filter: drop-shadow(0px 4px 20px rgba(0, 0, 0, 0.25));
+}
+
+.new-line {
+  white-space: pre-line;
 }

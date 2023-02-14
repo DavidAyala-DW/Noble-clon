@@ -1,22 +1,26 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import Image from "next/image";
 import { useRouter } from 'next/router'
-import SanityImage from './sanity-image'
 import Link from "next/link";
-import Logo from "@/public/images/logo.png"
+import SanityImage from './sanity-image'
 
 export default function Header(props) {
 
-  const router = useRouter();
+  const router = useRouter()
+  const menuButton = useRef();
 
   const {
     mainNav,
     menuImage,
+    alt_text : menuImage_alt_text,
     secondHeaderNav,
     facebookHandle,
     instagramHandle,
+    spotifyHandle,
+    soundCloudHandle,
     reservationsButton,
-    stickyHeader
+    stickyHeader,
+    locations
   } = props;
   
   const [openModal, setOpenModal] = useState(false);
@@ -25,22 +29,22 @@ export default function Header(props) {
   const [existHero, setExistHero] = useState(false);
   const [heroVisible, setHeroVisible] = useState(null)
   const [entryObserver, setEntryObserver] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
-  function handleClick(){
+  function handleClick(e = null){
     const updatedModalValue = !openModal;
     setOpenModal(updatedModalValue);
   }
 
-  function handleMouseOver(image){
-    setActiveMenuImage(image)
+  function handleMouseOver(image, alt_text){
+    setActiveMenuImage({image, alt_text})
   }
 
   function handleMouseDown(){
-    setActiveMenuImage(menuImage)
+    setActiveMenuImage({image: menuImage, alt_text: menuImage_alt_text ?? "Image"})
   }
 
-  useEffect(() => {
-
+  useEffect(() => { 
     setActiveModal(true);
 
     if(menuImage){
@@ -54,8 +58,30 @@ export default function Header(props) {
     const mainHero = document.getElementById("mainHero");
 
     if(!mainHero){
+
       setExistHero(false);
+
+      if(typeof window !== 'undefined'){
+
+        function handleScroll(){
+          
+          if(window.scrollY != 0){
+            setExistHero(true);
+            setHeroVisible(false);
+          }else{
+            setExistHero(!true);
+            setHeroVisible(!false);
+          }
+
+        }
+
+        window.addEventListener("scroll", handleScroll);
+        return window.removeEventListener("scroll", handleScroll, true);
+
+      }
+
       return;
+
     }
 
     const observer = new IntersectionObserver(
@@ -69,13 +95,13 @@ export default function Header(props) {
         setHeroVisible(false);
       },
       {
+        rootMargin: '0px 0px 0px 0px',
         root: null,
         threshold: .45
       }
     )
 
-    observer.observe(mainHero);
-    
+    observer.observe(mainHero); 
     setExistHero(true);
 
   }, [router.asPath,entryObserver]);
@@ -85,29 +111,30 @@ export default function Header(props) {
     <>
 
       <header
-      className={`${  existHero ? ((heroVisible == false && openModal == false ) ? "bg-body duration-[200ms]  " : "bg-transparent duration-[300ms]") : "bg-body" } z-[100] 
-      ${ openModal ? "justify-center md:!bg-transparent right-0 fixed md:inset-x-0" : `justify-between ${stickyHeader ? "sticky bg-body" :  "fixed inset-x-0"} `} 
-      top-0 px-4 md:px-[3.35%] w-full md:mx-auto flex items-center md:justify-between
-      py-6 md:pt-8 vw:pt-[1.666vw] md:pb-10 vw:pb-[2.0833vw]`}
       id="header"
+      className={` ${  existHero ? ((heroVisible == false && openModal == false ) ? "bg-[#C5A99C] duration-[200ms]  " : "bg-transparent duration-[300ms]") : "" }
+      transition-colors z-[100] 
+      ${ openModal ? "justify-center md2:!bg-transparent right-0 fixed md2:inset-x-0" : `justify-between ${stickyHeader ? "sticky bg-body" :  "fixed inset-x-0"} `} 
+      top-0 px-4 md2:px-[2.8%] w-full md2:mx-auto flex items-center md2:justify-between
+      py-6 md2:pt-8 vw:pt-[1.666vw] md2:pb-10 vw:pb-[2.0833vw]`}
       >
 
-        <div className={`cursor-pointer order-3 md:order-1 select-none md:opacity-50 ${openModal && "absolute right-4 md:left-0 md:relative"}`}>
+        <div className={`cursor-pointer order-3 md2:order-1 select-none ${openModal && "absolute right-4 md2:left-0 md2:relative"}`}>
 
-          <div onClick={handleClick} className={`${openModal && "hidden"} w-[25px] vw:!w-[1.302vw]`}>
+          <div onClick={handleClick} className={`${openModal && "hidden"} w-[25px] vw:!w-[1.302vw] filter-nav-icons`}>
             <Image
-              src={"/images/burguer.svg"}
+              src={`/images/${existHero ? "burguer.svg" : "burguerBrown.svg" }`}
               alt="burger"
               layout="responsive"
               width={25}
               height={16}
             />
           </div>
-
-          <div onClick={handleClick} className={`${!openModal && "hidden"} w-[21px] vw:!w-[1.093vw]`}>
+          
+          <div onClick={handleClick} className={`${!openModal && "hidden"} w-[21px] vw:!w-[1.09375vw]`}>
             <Image
               src={"/images/close.svg"}
-              alt="burger"
+              alt="close"
               layout="responsive"
               width={21}
               height={20}
@@ -116,29 +143,55 @@ export default function Header(props) {
           
         </div>
 
-        <div className={`order order-1 md:absolute md:inset-0 md:w-max md:top-[-5px] vw:top-[-.260vw] md:m-auto md:h-max select-none md:order-2`}>
+        <div className={`order order-1 md2:absolute md2:inset-0 md2:w-max md2:-top-4 vw:top-[-.83333vw] md2:m-auto md2:h-max select-none md2:order-2`}>
           
-          <Link href="/" passHref>
-            <a onClick={ () => setOpenModal(false)  } className="block cursor-pointer w-[115px] vw:w-[5.989vw]">
-              <Image
-                src={Logo}
-                alt="logo.png"
-                layout="responsive"
-              />
-            </a>            
-          </Link>
+          {
+            (!openModal && existHero) && (
+              <Link href="/" passHref>
+                <a onClick={ () => setOpenModal(false)  } className="block cursor-pointer w-[226px] vw:w-[11.77vw] filter-nav-icons">
+                  <Image
+                    src={"/images/logo.svg"}
+                    width={226}
+                    height={32}
+                    alt="logo.png"
+                    layout="responsive"
+                  />
+                </a>            
+              </Link>
+            )
+          }
+
+          {
+            (openModal || !existHero) && (
+              <Link href="/" passHref>
+                <a onClick={ () => setOpenModal(false)  } className="block cursor-pointer w-[226px] vw:w-[11.77vw] filter-nav-icons">
+                  <Image
+                    src={"/images/logoDark.svg"}
+                    width={226}
+                    height={32}
+                    alt="logo.png"
+                    layout="responsive"
+                  />
+                </a>            
+              </Link>
+            )
+          }
 
         </div>
 
-        <div className="hidden md:block order-3 select-none">
+        <div className="hidden md2:block order-3 select-none">
 
-          <Link href={reservationsButton?.link?.url} passHref>
-            <a className="block">
-              <p className="font-medium hover_state_link text-lg vw:text-[.9375vw] leading-[21px] vw:leading-[1.166] tracking-[.05em] uppercase opacity-70 hover_state_link">
-                {reservationsButton?.title}
-              </p>
-            </a>
-          </Link>
+          {(reservationsButton && (
+
+            <Link passHref href={reservationsButton?.link?.url}>
+              <a>
+                <p className={`font-light ${(openModal || !existHero  ) ? "text-[#57412d] !border-primary" : "text-white border-white"} filter-nav-icons transition-colors py-2.5 px-[30px] border  hover:bg-white hover:text-primary text-lg vw:text-[.9375vw] leading-[25px] vw:leading-[1.388] tracking-[.05em] uppercase`}>
+                  {reservationsButton?.title}
+                </p>
+              </a>
+            </Link>
+
+          ))}
 
         </div>
         
@@ -149,44 +202,142 @@ export default function Header(props) {
         min-h-screen z-[90] w-full flex items-start`}
       >
 
-        <div className={`md:pl-[3.35%] w-full h-full max-w-full md2:max-w-[73.6%] 3xl:max-w-[66.666%] flex flex-col items-center md:items-start justify-between pt-[152px] md:pt-[108px] vw:pt-[5.625vw] pb-6 vw:pb-[1.25vw]`}>
+        <div
+        className={`md2:pl-[2.8%] w-full h-[calc(100%-80px)] md2:h-full max-w-full md2:max-w-[73.6%] 3xl:max-w-[66.666%] flex flex-col items-center
+        md2:items-start justify-between pt-[101px] md2:pt-[108px] vw:pt-[5.625vw] pb-6 vw:pb-[1.25vw]`}>
 
-          <div className="flex flex-col w-full md:flex-row space-y-2 md:space-y-0 items-start md:space-x-16 vw:space-x-[3.333vw]">
+          <div className="w-full flex flex-col md2:flex-row space-y-2 md2:space-y-0 items-start md2:space-x-[150px] vw:space-x-[3.333vw]">
 
-            <div className="flex flex-col w-full md:w-auto items-center md:items-start space-y-2 vw:space-y-[.416vw]">
+            <div className="w-full md2:w-1/2 flex flex-col items-center md2:items-start">
 
               { mainNav.map((item,index) => {
 
-                if(index < 4){
+                if(index >= 4) return;
 
-                  const {title, link, image, _key} = item;
+                const {title, link, image, alt_text} = item;
 
-                  return (
-                    <Link href={link?.url} passHref key={_key} >
-                      <a onMouseLeave={handleMouseDown} onMouseEnter={() => handleMouseOver(image)} onClick={handleClick} className="block uppercase hover_state_link tracking-[.05em] text-[32px] md:text-[48px] vw:text-[2.5vw] leading-[1.2] font-light opacity-90">
-                        {title}
-                      </a>
-                    </Link>
-                  )
+                return (
 
-                }
+                  <div key={index}>
+
+                    {
+
+                      title != "Menus" ? (
+                        <Link href={link.url} passHref>
+                          <a
+                            onMouseLeave={handleMouseDown}
+                            onMouseEnter={() => handleMouseOver(image, alt_text)}
+                            onClick={handleClick}
+                            className={                              
+                              `
+                                ${ title?.toLowerCase()?.includes('reservati') ? "!hidden md2:!block" : "block" }
+                                block font-light tracking-[-.04em] text-[32px] md2:text-[55px] vw:text-[2.864vw] leading-[44px] md2:leading-[75px] vw:leading-[1.36]
+                              `
+                            }
+                          >
+                            {title}
+                          </a>
+                        </Link>
+
+                      ) : (
+
+                        <div className="flex flex-col items-center md2:items-start">
+
+                          <div className={`flex items-center w-full space-x-5 max-w-max mx-auto md2:max-w-full`}>
+
+                            <Link href={link.url} passHref>
+                              <a
+                                onMouseLeave={handleMouseDown}
+                                onMouseEnter={() => handleMouseOver(image)}
+                                onClick={
+                                  e => {
+                                    e.preventDefault();
+                                    setIsMenuOpen(!isMenuOpen)
+                                  }
+                                }
+                                className="block font-light tracking-[-.04em] text-[32px] md2:text-[55px] vw:text-[2.864vw] leading-[44px] md2:leading-[75px] vw:leading-[1.36]"
+                              >
+                                {title.split(",")[0]}
+                              </a>
+                            </Link>
+
+                            <div onClick={ () => {setIsMenuOpen(!isMenuOpen)} }  ref={menuButton} className={`cursor-pointer relative transition-transform w-5 h-3 md2:w-7 md2:h-6 vw:w-[1.458vw] vw:h-[.8333vw] ${isMenuOpen? "rotate-180" : "rotate-0" }`}>
+                              <Image
+                                src="/images/Down.svg"
+                                alt="Down Icon"
+                                layout={"fill"}                                  
+                              />
+                            </div>
+
+                          </div>
+
+                          <div className={`flex-col items-center md2:items-start ${isMenuOpen ? "flex" : "hidden" }`}>
+
+                            {
+                              locations && (
+                                [...locations].reverse().map((location, i) => {
+
+                                  const {title, slug:{current}, comming_soon, _id} = location;
+                                  
+
+                                  return(
+
+                                    <div key={_id}>
+
+                                      <Link href={`/menus/${current}${comming_soon ? "" : "?menu=dinner-menu"} `} passHref>
+                                        <a
+                                        onClick={handleClick}
+                                        className={`
+                                          text-[#57412d] text-lg md2:text-[24px] leading-[1.6] tracking-[-.02em] font-light !font-avenir opacity-90 transition-[opacity] hover:opacity-50
+                                        `}>
+                                          {title.split(",")[0]}
+                                        </a>
+                                      </Link>
+                
+                                    </div>
+                                  )
+
+
+                                })
+                              )
+                            }
+                          </div>
+
+                        </div>
+
+                      )
+
+                    }
+
+
+
+                  </div>
+
+                )
 
               })}
 
             </div>
 
-            <div className="flex flex-col w-full md:w-auto items-center md:items-start space-y-2 vw:space-y-[.416vw]">
+            <div className="flex flex-col w-full items-center md2:items-start">
 
               {mainNav.map((item,index) => {
 
                 if(index >= 4){
 
-                  const {title, link, image, _key} = item;
+                  const {title, link, image, alt_text} = item;
 
                   return (
-                    <Link href={link?.url} passHref key={_key} >
-                      <a onMouseLeave={handleMouseDown} onMouseEnter={() => handleMouseOver(image)} onClick={handleClick} className="block hover_state_link uppercase tracking-[.05em] text-[32px] md:text-[48px] vw:text-[2.5vw] leading-[1.2] font-light opacity-90">
-                        {title}
+                    <Link href={link.url} passHref key={index} >
+                      <a
+                        onMouseLeave={handleMouseDown}
+                        onMouseEnter={() => handleMouseOver(image, alt_text)}
+                        onClick={handleClick}
+                        className={`
+                          font-light tracking-[-.04em] text-[32px] md2:text-[55px] vw:text-[2.864vw] leading-[44px] md2:leading-[75px] vw:leading-[1.36]
+                        `}
+                      >
+                        {title.split(",")[0]} 
                       </a>
                     </Link>
                   )
@@ -195,24 +346,42 @@ export default function Header(props) {
 
               })}
 
-              <Link href={reservationsButton?.link?.url} passHref>
-                <a onClick={handleClick} className="md:hidden hover_state_link block uppercase tracking-[.05em] text-[32px] md:text-[48px] vw:text-[2.5vw] leading-[1.2] font-light opacity-90">
-                  {reservationsButton?.title}
-                </a>
-              </Link>
+              <div className="max-w-max block md2:hidden">
+                {(reservationsButton && (
+
+                  <Link passHref href={reservationsButton?.link?.url}>
+                    <a      
+                      onClick={handleClick}                 
+                      className="block font-light tracking-[-.04em] text-[32px] md2:text-[55px] vw:text-[2.864vw] leading-[44px] md2:leading-[75px] vw:leading-[1.36]"
+                    >
+                      {reservationsButton?.title}
+                    </a>
+                  </Link>
+
+                ))}
+              </div>
               
-              <div className="pt-6 vw:pt-[1.25vw] hidden md:flex flex-col space-y-2 vw:space-y-[.416vw]">
+              <div className="pt-6 vw:pt-[1.25vw] hidden md2:flex flex-col space-y-2 vw:space-y-[.416vw]">
 
-                {secondHeaderNav.map( (item,index)  => {
+                {secondHeaderNav && secondHeaderNav.map( (item,i)  => {
 
-                  const {title, link, image, _key} = item;
+                  const {title,link} = item;
+                  if(!link || !title) return;
 
                   return (
-                    <Link href={link?.url} passHref key={_key} >
-                      <a onMouseLeave={handleMouseDown} onMouseEnter={() => handleMouseOver(image)} onClick={handleClick} className="block hover_state_link uppercase tracking-[.05em] text-[24px] vw:text-[1.25vw] leading-[28px] vw:leading-[1.166] font-light opacity-80">
+
+                    <Link
+                      href={link?.url}
+                      passHref key={i}
+                    >
+                      <a
+                        onClick={handleClick}
+                        className="block text-[24px] vw:text-[1.25vw] leading-[1.6] font-light opacity-90"
+                      >
                         {title}
                       </a>
                     </Link>
+
                   )
 
                 })}
@@ -225,51 +394,80 @@ export default function Header(props) {
 
           <div className="flex items-center space-x-6 vw:space-x-[1.25vw]">
 
-            <a onClick={handleClick} href={facebookHandle} className="block w-6 vw:w-[1.25vw]">
+            {/* {
+              facebookHandle && (
+                <a onClick={handleClick} href={facebookHandle} className="block w-8 vw:w-[1.666vw]">
 
-              <Image
-                src={"/images/facebook.svg"}
-                alt="facebook logo"
-                layout="responsive"
-                width={24}
-                height={24}
-              />
+                  <Image
+                    src={"/images/facebook.svg"}
+                    alt="facebook logo"
+                    layout="responsive"
+                    width={32}
+                    height={32}
+                  />
+    
+                </a>
+              )
+            } */}
 
-            </a>
+            {
+              instagramHandle && (
+                <a onClick={handleClick} href={instagramHandle} className="block w-8 vw:w-[1.666vw]">
 
-            <a onClick={handleClick} href={instagramHandle} className="block w-6 vw:w-[1.25vw]">
+                  <Image
+                    src={"/images/instagram.svg"}
+                    alt="instagram logo"
+                    layout="responsive"
+                    width={32}
+                    height={32}
+                  />
+    
+                </a>
+              )
+            }
 
-              <Image
-                src={"/images/instagram.svg"}
-                alt="instagram logo"
-                layout="responsive"
-                width={24}
-                height={24}
-              />
+            {
+              spotifyHandle && (
+                <a onClick={handleClick} href={spotifyHandle} className="block w-8 vw:w-[1.666vw]">
 
-            </a>
+                  <Image
+                    src={"/images/spotify.svg"}
+                    alt="instagram logo"
+                    layout="responsive"
+                    width={32}
+                    height={32}
+                  />
+    
+                </a>
+              )
+            }
+
+            {
+              soundCloudHandle && (
+                <a onClick={handleClick} href={soundCloudHandle} className="block w-8 vw:w-[1.666vw]">
+
+                  <Image
+                    src={"/images/soundCloud.svg"}
+                    alt="instagram logo"
+                    layout="responsive"
+                    width={32}
+                    height={32}
+                  />
+    
+                </a>
+              )
+            }
 
           </div>
 
         </div>
 
-        <div className={`hidden ${!activeMenuImage && "bg-body"} lg:flex relative w-full h-full max-w-[26.4%] 3xl:max-w-[33.3333%]`}>
+        <div className={`hidden ${!activeMenuImage?.image && "bg-body"} lg:flex relative w-full h-full max-w-[26.4%] 3xl:max-w-[33.3333%]`}>
 
           {
-            [...secondHeaderNav,...mainNav,{image:menuImage, _key: "_falseKey"}].map((item) => {
-              const {image, _key} = item;
-              return (
-                <div key={_key} className={`${JSON.stringify(image) == JSON.stringify(activeMenuImage) ? "block" : "hidden" } relative w-full h-full`}>
-                  <SanityImage                    
-                    priority={true}
-                    className={`object-cover`}
-                    src={image}
-                    layout="fill"
-                    quality={80}
-                  />
-                </div>
-              )
-            })
+            activeMenuImage && (
+              <SanityImage priority={true} alt={activeMenuImage?.alt_text ?? "Image"} className="object-cover" src={activeMenuImage?.image} layout="fill" />
+            )
           }
           
         </div>

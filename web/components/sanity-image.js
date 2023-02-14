@@ -8,6 +8,7 @@ export default function SanityImage(props) {
   if(!props) return;
   const { src: image, quality = 85, className, ...rest } = props
   const imageProps = useNextSanityImage(client, image)
+  if(!imageProps) return;
 
   // SVG images don't load without this
   if (imageProps?.src?.includes('.svg')) {

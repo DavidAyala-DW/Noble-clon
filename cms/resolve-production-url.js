@@ -2,7 +2,7 @@
 const previewSecret = "test"
 
 const urls = {
-  "casaMadera": "https://casa-madera.netlify.app/",
+  "casaMadera": "https://noble-clon.vercel.app/",
   "sparrow": "https://noble33-sparrow.netlify.app/",
   "noble33": "https://noble33.netlify.app/"
 }

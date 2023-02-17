@@ -1,4 +1,4 @@
-import { FolderIcon } from '@sanity/icons'
+import { FolderIcon } from '@sanity/icons';
 
 export default {
   name: 'locations',
@@ -64,7 +64,7 @@ export default {
       description: 'Image for sharing previews on Facebook, Twitter etc. (Menu page)'
     },
     {
-      name: 'slug', 
+      name: 'slug',
       type: 'slug',
       group: 'general',
       title: 'Slug',
@@ -74,7 +74,7 @@ export default {
       },
     },
     {
-      name:"comming_soon",
+      name: "comming_soon",
       type: "boolean",
       title: "Comming Soon?"
     },
@@ -113,7 +113,7 @@ export default {
         { type: 'gallery' },
       ],
       initialValue: [
-        { 
+        {
           _type: 'hero',
         },
         {
@@ -144,7 +144,7 @@ export default {
               type: 'slug',
               title: 'Slug',
               options: {
-                source: (doc,options) => {
+                source: (doc, options) => {
                   const menus = doc?.menus;
                   const actualKey = options?.parentPath[1];
                   return menus.find(menu => menu?._key == actualKey?._key)?.title;
@@ -160,7 +160,7 @@ export default {
                 {
                   type: 'object',
                   title: "Group",
-                  fields:[
+                  fields: [
                     {
                       type: "string",
                       name: "title",
@@ -174,7 +174,7 @@ export default {
                         {
                           type: "object",
                           name: "Course",
-                          fields:[
+                          fields: [
                             {
                               type: "string",
                               name: "title",
@@ -237,12 +237,31 @@ export default {
         { type: 'richtext' },
       ],
       initialValue: [
-        { 
+        {
           _type: 'menusContent',
         },
       ]
     },
-    
+
+    {
+      name: 'address',
+      group: 'general',
+      type: 'string',
+      title: 'Address'
+    },
+    {
+      name: 'postalCode',
+      group: 'general',
+      type: 'string',
+      title: 'Postal Code'
+    },
+    {
+      name: 'phoneNumber',
+      group: 'general',
+      type: 'string',
+      title: 'Phone Number',
+      validation: Rule => Rule.regex(/^(\+\d{1,2}\s)?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/).error('Invalid Phone Number')
+    }
   ],
   preview: {
     select: {
@@ -253,7 +272,7 @@ export default {
       return {
         title,
         media
-      }
+      };
     },
   },
-}
+};

@@ -20,7 +20,7 @@ export default function Reservations(props) {
 
       <section className={`px-6 md:px-0 md:max-w-[94.4%] 3xl:max-w-[95%] w-full mx-auto flex flex-col`}>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-16 lg:gap-y-0 lg:gap-x-4 w-full">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-y-16 lg:gap-y-8 lg:gap-x-4 w-full">
 
           {
             reservations && reservations.map(reservation => {

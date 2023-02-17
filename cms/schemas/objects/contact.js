@@ -12,6 +12,17 @@ export default {
       name: "description",
       type: 'text',
       title: "Description"
+    },
+    {
+      name: 'locations',
+      type: 'array',
+      title: 'Locations to show',
+      of: [
+        {
+          type: 'reference',
+          to: { type: 'locations' }
+        }
+      ]
     }
   ],
   preview: {
@@ -22,7 +33,7 @@ export default {
       return {
         title,
         subtitle: 'Contact',
-      }
+      };
     },
   },
-}
+};

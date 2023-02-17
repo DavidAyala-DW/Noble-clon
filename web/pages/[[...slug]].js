@@ -103,7 +103,7 @@ async function fulfillSectionQueries(page, internalLinks) {
 
           await Promise.all(section.locations.map(async (location) => {
             const queryData = await client.fetch(groq`*[_type == "locations" && _id == "${location._ref}" ][0]{...}`)
-            const {title, image, alt_text = "", slug, menus = null} = queryData;
+            const {title, image = null, alt_text = "", slug, menus = null} = queryData;
             location.title = title;
             location.image = image;
             location.alt_text = alt_text;

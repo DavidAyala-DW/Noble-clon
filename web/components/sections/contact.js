@@ -114,8 +114,9 @@ export default function Contact(props) {
 
         <div className="flex flex-col px-4 space-y-5 md:space-y-0 md:flex-row w-full md:max-w-[900px] mx-auto">
 
-          {locations.map((loc) =>
+          {locations.map((loc) => (
             <button
+              key={loc._key}
               className={`
                 w-full text-lg md:text-[20px] py-2.5 md:py-3 px-5 text-center text-primary border-primary border cursor-pointer  transition-colors !font-avenir
                 ${location === loc.query.title ? "!text-white !bg-primary" : ''}
@@ -124,7 +125,7 @@ export default function Contact(props) {
             >
               {loc.query.title}
             </button>
-          )}
+          ))}
 
         </div>
 
